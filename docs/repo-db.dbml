@@ -1,0 +1,241 @@
+// REPO GIS Database — Phase 1: Texas
+// All geometry stored in WGS84 (EPSG:4326)
+// Spatial indexes are GiST; DBML can't express that type, so they're marked with a note.
+
+Table public.load_runs {
+  id bigint [pk, increment]
+  layer text [not null, note: 'e.g. hydro.wetlands']
+  status text [not null, note: "check: 'running' | 'skipped' | 'succeeded' | 'failed'"]
+  source_version text [note: 'Last-Modified / ETag / release date from source']
+  rows_loaded integer
+  error text
+  started_at timestamptz [not null, default: `now()`]
+  finished_at timestamptz
+
+  indexes {
+    (layer, started_at) [name: 'load_runs_layer_started_idx']
+  }
+}
+
+// ---------- hydro ----------
+
+Table hydro.wetlands {
+  id bigint [pk, increment]
+  cowardin_code text [not null]
+  wetland_type text [not null]
+  acres numeric
+  geom "geometry(MultiPolygon, 4326)" [not null]
+
+  indexes {
+    geom [name: 'wetlands_geom_idx', note: 'GiST']
+  }
+}
+
+Table hydro.flowlines {
+  id bigint [pk, increment]
+  id3dhp text [not null, unique]
+  name text
+  feature_type text [not null, note: 'River, Canal (incl. ditches), Drainageway, ...']
+  geom "geometry(MultiLineString, 4326)" [not null]
+
+  indexes {
+    geom [name: 'flowlines_geom_idx', note: 'GiST']
+  }
+}
+
+Table hydro.waterbodies {
+  id bigint [pk, increment]
+  id3dhp text [not null, unique]
+  name text
+  feature_type text [not null]
+  geom "geometry(MultiPolygon, 4326)" [not null]
+
+  indexes {
+    geom [name: 'waterbodies_geom_idx', note: 'GiST']
+  }
+}
+
+Table hydro.stream_segments {
+  id bigint [pk, increment]
+  segment_id text [not null]
+  segment_name text
+  basin text
+  geom "geometry(Geometry, 4326)" [not null]
+
+  indexes {
+    geom [name: 'stream_segments_geom_idx', note: 'GiST']
+  }
+}
+
+Table hydro.flood_fema {
+  id bigint [pk, increment]
+  flood_zone text [not null]
+  zone_subtype text
+  sfha boolean [not null, note: 'Special Flood Hazard Area']
+  static_bfe numeric [note: 'Base flood elevation, ft']
+  geom "geometry(MultiPolygon, 4326)" [not null]
+
+  indexes {
+    geom [name: 'flood_fema_geom_idx', note: 'GiST']
+  }
+}
+
+Table hydro.flood_ble {
+  id bigint [pk, increment]
+  huc8 text [not null]
+  flood_zone text [not null]
+  geom "geometry(MultiPolygon, 4326)" [not null]
+
+  indexes {
+    geom [name: 'flood_ble_geom_idx', note: 'GiST']
+  }
+}
+
+// ---------- cultural ----------
+
+Table cultural.nrhp {
+  id bigint [pk, increment]
+  ref_number text [not null]
+  name text [not null]
+  geom "geometry(Geometry, 4326)" [not null, note: 'points and polygons']
+
+  indexes {
+    geom [name: 'nrhp_geom_idx', note: 'GiST']
+  }
+}
+
+Table cultural.cemeteries {
+  id bigint [pk, increment]
+  name text
+  location_known boolean [not null, note: 'false = vicinity cemetery']
+  geom "geometry(Geometry, 4326)" [not null]
+
+  indexes {
+    geom [name: 'cemeteries_geom_idx', note: 'GiST']
+  }
+}
+
+Table cultural.markers {
+  id bigint [pk, increment]
+  marker_number text
+  title text [not null]
+  geom "geometry(Point, 4326)" [not null]
+
+  indexes {
+    geom [name: 'markers_geom_idx', note: 'GiST']
+  }
+}
+
+// ---------- environment ----------
+
+Table environment.critical_habitat {
+  id bigint [pk, increment]
+  common_name text [not null]
+  scientific_name text [not null]
+  listing_status text [not null]
+  designation_status text [not null, note: "check: 'final' | 'proposed'"]
+  geom "geometry(Geometry, 4326)" [not null]
+
+  indexes {
+    geom [name: 'critical_habitat_geom_idx', note: 'GiST']
+  }
+}
+
+// ---------- energy ----------
+
+Table energy.oilgas_wells {
+  id bigint [pk, increment]
+  api_number text [not null]
+  well_type text
+  geom "geometry(Point, 4326)" [not null]
+
+  indexes {
+    geom [name: 'oilgas_wells_geom_idx', note: 'GiST']
+  }
+}
+
+Table energy.pipelines {
+  id bigint [pk, increment]
+  t4_permit text
+  operator_name text
+  commodity text
+  diameter_in numeric
+  interstate boolean
+  geom "geometry(MultiLineString, 4326)" [not null]
+
+  indexes {
+    geom [name: 'pipelines_geom_idx', note: 'GiST']
+  }
+}
+
+// ---------- utilities ----------
+
+Table utilities.water_wells {
+  id bigint [pk, increment]
+  state_well_number text [not null, unique]
+  well_use text
+  geom "geometry(Point, 4326)" [not null]
+
+  indexes {
+    geom [name: 'water_wells_geom_idx', note: 'GiST']
+  }
+}
+
+// ---------- land ----------
+
+Table land.protected_areas {
+  id bigint [pk, increment]
+  unit_name text
+  manager_name text
+  category text [not null, note: "check: 'Fee' | 'Easement' | 'Designation'"]
+  gap_status text
+  geom "geometry(MultiPolygon, 4326)" [not null]
+
+  indexes {
+    geom [name: 'protected_areas_geom_idx', note: 'GiST']
+  }
+}
+
+Table land.parcels {
+  id bigint [pk, increment]
+  county text [not null]
+  prop_id text
+  owner_name text
+  situs_address text
+  geom "geometry(MultiPolygon, 4326)" [not null]
+
+  indexes {
+    geom [name: 'parcels_geom_idx', note: 'GiST']
+  }
+}
+
+// ---------- soils ----------
+
+Table soils.map_units {
+  id bigint [pk, increment]
+  mukey text [not null]
+  musym text
+  muname text
+  geom "geometry(MultiPolygon, 4326)" [not null]
+
+  indexes {
+    geom [name: 'map_units_geom_idx', note: 'GiST']
+  }
+}
+
+// ---------- storage (S3) ----------
+
+Table storage.raster_assets {
+  id bigint [pk, increment]
+  layer text [not null, note: 'e.g. dem_1m']
+  s3_key text [not null, unique]
+  url text [not null]
+  source text [not null]
+  source_date date
+  loaded_at timestamptz [not null, default: `now()`]
+  footprint "geometry(Polygon, 4326)" [not null]
+
+  indexes {
+    footprint [name: 'raster_assets_footprint_idx', note: 'GiST']
+  }
+}
