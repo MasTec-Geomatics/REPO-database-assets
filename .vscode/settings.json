@@ -1,18 +1,29 @@
 {
     "cSpell.words": [
         "cowardin",
+        "dbdiagram",
         "DBML",
         "Drainageway",
+        "ECOS",
         "EPSG",
         "fema",
         "flowlines",
         "mukey",
         "muname",
         "musym",
+        "NPMS",
+        "NRCS",
         "nrhp",
         "oilgas",
         "sfha",
+        "SSURGO",
+        "Strat",
+        "TCEQ",
         "timestamptz",
+        "TWDB",
+        "TXNDD",
+        "USFWS",
+        "USGS",
         "waterbodies"
     ]
 }
