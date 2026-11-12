@@ -1,4 +1,9 @@
 {
+    "python-envs.defaultPackageManager": "ms-python.python:pip",
+    "files.associations": {
+        "*.mako": "python"
+    },
+    "python.analysis.ignore": ["migrations/script.py.mako"],
     "cSpell.words": [
         "cowardin",
         "dbdiagram",
@@ -25,6 +30,5 @@
         "USFWS",
         "USGS",
         "waterbodies"
-    ],
-    "python-envs.defaultPackageManager": "ms-python.python:pip"
+    ]
 }

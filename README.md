@@ -59,6 +59,17 @@ Archaeological sites, Texas rare species (TXNDD), electric transmission lines, f
 └── README.md
 ```
 
+## Migrations
+
+Schema changes are Alembic migrations with raw SQL through `op.execute()` (ADR 0003). There are no ORM models and no autogenerate.
+
+```sh
+uv run alembic upgrade head            # apply all migrations
+uv run alembic revision -m "describe"  # create a new migration
+```
+
+**Applied migrations are never edited.** To change the schema, add a new migration.
+
 ## Architecture Decisions
 
 | ADR | Decision |

@@ -39,4 +39,12 @@ db-check:
 db-roles:
   podman exec -i {{container}} psql -U repo -d repo -v ON_ERROR_STOP=1 < dev/roles.sql
 
+# Apply all migrations
+db-migrate:
+  uv run alembic upgrade head
+
+# Create a new migration: just db-revision "create hydro schema"
+db-revision message:
+  uv run alembic revision -m "{{message}}"
+
 
