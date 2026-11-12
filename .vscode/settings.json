@@ -25,5 +25,6 @@
         "USFWS",
         "USGS",
         "waterbodies"
-    ]
+    ],
+    "python-envs.defaultPackageManager": "ms-python.python:pip"
 }

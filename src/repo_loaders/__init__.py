@@ -1,2 +1,1 @@
-def main() -> None:
-    print("Hello from repo-loaders!")
+"""Loaders and migrations for the REPO GIS database."""
