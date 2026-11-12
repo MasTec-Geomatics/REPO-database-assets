@@ -1,0 +1,27 @@
+# Local development database for REPO. Not used in production!
+apiVersion: v1
+kind: Pod
+metadata:
+  name: repo-db
+spec:
+  containers:
+    - name: postgis
+      image: docker.io/postgis/postgis:18-3.6
+      env:
+        - name: POSTGRES_USER
+          value: repo
+        - name: POSTGRES_PASSWORD
+          value: repo-dev # local development only - this will change in production
+        - name: POSTGRES_DB
+          value: repo
+      ports:
+        - containerPort: 5432
+          hostPort: 5433
+          hostIP: 127.0.0.1
+      volumeMounts:
+        - name: repo-db-data
+          mountPath: /var/lib/postgresql
+  volumes:
+    - name: repo-db-data
+      persistentVolumeClaim:
+        claimName: repo-db-data
